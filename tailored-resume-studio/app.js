@@ -276,6 +276,59 @@ function normalizeText(text) {
   return text.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
+const germanLevelRank = {
+  a1: 1,
+  a2: 2,
+  b1: 3,
+  b2: 4,
+  c1: 5,
+  c2: 6,
+};
+
+function findGermanRequirement(jobText) {
+  const text = normalizeText(jobText);
+  const patterns = [
+    /\b(?:sprachkenntnisse|language skills|languages)\b[^\n]{0,120}\bdeutsch\b[^\n]{0,80}\b(a1|a2|b1|b2|c1|c2)\b/i,
+    /\bdeutsch(?:kenntnisse)?\b[^\n]{0,100}\b(?:mindestens|mind\.?|minimum|min\.?|ab|niveau|level)?\s*\(?\b(a1|a2|b1|b2|c1|c2)\b\)?/i,
+    /\b(a1|a2|b1|b2|c1|c2)\b[^\n]{0,80}\bdeutsch(?:kenntnisse)?\b/i,
+    /\bgerman\b[^\n]{0,100}\b(?:at least|minimum|min\.?|level)?\s*\(?\b(a1|a2|b1|b2|c1|c2)\b\)?/i,
+    /\b(a1|a2|b1|b2|c1|c2)\b[^\n]{0,80}\bgerman\b/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      const level = match[1].toLowerCase();
+      return { level: level.toUpperCase(), rank: germanLevelRank[level] };
+    }
+  }
+
+  return null;
+}
+
+function findCandidateGermanLevel() {
+  const text = normalizeText(state.tailoredSections.languages || "");
+  const levelMatch = text.match(/\bdeutsch\b[^,\n;]{0,40}\b(a1|a2|b1|b2|c1|c2)\b/i);
+  if (levelMatch) {
+    const level = levelMatch[1].toLowerCase();
+    return { level: level.toUpperCase(), rank: germanLevelRank[level] };
+  }
+
+  if (/\bdeutsch\b[^,\n;]{0,60}\b(?:muttersprache|muttersprachlich|native)\b/i.test(text)) {
+    return { level: "C2", rank: germanLevelRank.c2 };
+  }
+
+  if (/\bdeutsch\b[^,\n;]{0,60}\b(?:c1|fließend|fliessend|verhandlungssicher)\b/i.test(text)) {
+    return { level: "C1", rank: germanLevelRank.c1 };
+  }
+
+  if (/\bdeutsch\b[^,\n;]{0,60}\b(?:b2|fortgeschritten|gute deutschkenntnisse)\b/i.test(text)) {
+    return { level: "B2", rank: germanLevelRank.b2 };
+  }
+
+  return null;
+}
+
 function extractKeywords(jobText) {
   const normalized = normalizeText(jobText);
   const allKeywords = Object.values(keywordGroups).flat();
@@ -293,6 +346,8 @@ function assessLanguageFit(jobText) {
   const normalized = normalizeText(jobText);
   const signals = [];
   let score = 0;
+  const requiredGermanLevel = findGermanRequirement(jobText);
+  const candidateGermanLevel = findCandidateGermanLevel();
 
   const germanMarketSignals = [
     "germany",
@@ -340,6 +395,11 @@ function assessLanguageFit(jobText) {
     "c2 german",
     "deutsch c1",
     "deutsch c2",
+    "mind c1",
+    "mind. c1",
+    "mindestens c1",
+    "minimum c1",
+    "sprachkenntnisse deutsch",
     "fließend deutsch",
     "fliessend deutsch",
     "verhandlungssicher deutsch",
@@ -375,16 +435,41 @@ function assessLanguageFit(jobText) {
     signals.push(`critical German requirement: ${matchedCriticalGermanSignals.slice(0, 4).join(", ")}`);
   }
 
-  const isLanguageCritical = matchedCriticalGermanSignals.length > 0;
-  const level = isLanguageCritical ? "Red flag: strong German required" : score >= 65 ? "Strong Germany-market fit" : score >= 35 ? "Moderate Germany-market fit" : "Low Germany-market dependency";
-  const recommendation =
-    isLanguageCritical
-      ? "German appears to be a hard requirement. Apply only if your German level honestly matches it, or make your current German level very clear before investing time."
+  if (requiredGermanLevel) {
+    score += requiredGermanLevel.rank >= germanLevelRank.c1 ? 45 : 25;
+    signals.push(`required German level: ${requiredGermanLevel.level}`);
+  }
+
+  if (candidateGermanLevel) {
+    signals.push(`your saved German level: ${candidateGermanLevel.level}`);
+  }
+
+  const isCandidateBelowGermanRequirement =
+    requiredGermanLevel &&
+    (!candidateGermanLevel || candidateGermanLevel.rank < requiredGermanLevel.rank);
+  const isLanguageCritical =
+    matchedCriticalGermanSignals.length > 0 ||
+    (requiredGermanLevel && requiredGermanLevel.rank >= germanLevelRank.c1) ||
+    isCandidateBelowGermanRequirement;
+  const level = isCandidateBelowGermanRequirement
+    ? `Red flag: German ${requiredGermanLevel.level} required`
+    : isLanguageCritical
+      ? "Red flag: strong German required"
       : score >= 65
-        ? "Use a Germany-focused resume version. Keep German language level visible, mention Germany/EU work context if truthful, and emphasize secure APIs, DevOps ownership, AWS, and financial-domain reliability."
+        ? "Strong Germany-market fit"
         : score >= 35
-          ? "Use a Germany-friendly resume version and keep language details visible."
-          : "A general international resume should be enough unless the recruiter asks for German details.";
+          ? "Moderate Germany-market fit"
+          : "Low Germany-market dependency";
+  const recommendation =
+    isCandidateBelowGermanRequirement
+      ? `This job asks for German ${requiredGermanLevel.level}, but your saved resume shows ${candidateGermanLevel?.level || "no clear German level"}. Treat this as a strong risk before investing time.`
+      : isLanguageCritical
+        ? "German appears to be a hard requirement. Apply only if your German level honestly matches it, or make your current German level very clear before investing time."
+        : score >= 65
+          ? "Use a Germany-focused resume version. Keep German language level visible, mention Germany/EU work context if truthful, and emphasize secure APIs, DevOps ownership, AWS, and financial-domain reliability."
+          : score >= 35
+            ? "Use a Germany-friendly resume version and keep language details visible."
+            : "A general international resume should be enough unless the recruiter asks for German details.";
 
   return {
     score,
