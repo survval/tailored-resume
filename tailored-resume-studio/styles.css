@@ -707,6 +707,41 @@ label {
   --resume-rule: #b8d1e6;
 }
 
+.template-classic-blue .resume-header {
+  align-items: start;
+  text-align: center;
+}
+
+.template-classic-blue .resume-identity {
+  min-width: 0;
+}
+
+.template-classic-blue.has-photo .resume-identity {
+  align-self: center;
+}
+
+.template-classic-blue .resume-contact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 18px;
+  align-items: start;
+  justify-content: center;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.template-classic-blue .resume-contact span {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.template-classic-blue.no-photo .resume-contact span:nth-child(odd):last-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
 .template-executive-navy {
   --resume-accent: #173c63;
   --resume-accent-dark: #102b49;
@@ -1568,6 +1603,31 @@ body.print-cover-letter #resumeView { display: none !important; }
     width: 28mm;
     height: 28mm;
     justify-self: end;
+  }
+
+  .template-classic-blue .resume-header {
+    align-items: start;
+    text-align: center;
+  }
+
+  .template-classic-blue.has-photo .resume-identity {
+    align-self: center;
+  }
+
+  .template-classic-blue .resume-contact {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5mm 5mm;
+    justify-content: center;
+    max-width: 145mm;
+    margin-inline: auto;
+  }
+
+  .template-classic-blue .resume-contact span {
+    display: block;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: normal;
   }
 
   /* Executive Navy print: keep banner */
