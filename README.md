@@ -4,6 +4,21 @@ Tailored Resume Studio is a local resume and cover-letter tailoring app for fast
 
 The app is designed for a section-first workflow: stable information such as personal details, education, languages, certifications, photo, LinkedIn, GitHub, and visa/work status can stay saved locally, while frequently changing sections such as Kurzprofil, Technische Kenntnisse, Projekterfahrung, and Anschreiben can be tailored for each job.
 
+## Why I Built This
+
+This project started from a very practical job-search problem: applying to jobs became slower than it should be because every application needed a slightly different CV and cover letter. Editing Word documents or PDFs manually for each role was repetitive, error-prone, and often required too many formatting corrections.
+
+ChatGPT can help with wording, but asking AI to generate a perfect PDF every time is unreliable. The layout may change, sections may move, and small formatting issues can take more time to fix than writing the content itself.
+
+Tailored Resume Studio solves this by separating content from formatting:
+
+- Stable details stay saved once: name, contact details, photo, links, visa/work status, education, certifications, and languages.
+- Frequently changing sections can be tailored per job: Kurzprofil, technical skills, project experience, and cover letter.
+- The app controls the resume layout, templates, preview, and PDF export.
+- AI can focus on improving the text instead of trying to design the document.
+
+The main goal is productivity: instead of spending many iterations adjusting one resume, the user can paste a job description, tailor only the relevant sections, review the preview, and export a consistent CV and cover letter faster.
+
 ## Features
 
 - German-first CV and cover-letter workflow with optional English preview.
