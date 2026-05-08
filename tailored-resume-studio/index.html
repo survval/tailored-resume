@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tailored Resume Studio</title>
+    <meta name="description" content="Section-first resume tailoring with AI, 5 templates, SQLite storage, and cover letter generation." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Caveat:wght@500&family=Pacifico&family=Pinyon+Script&display=swap" />
+    <link rel="stylesheet" href="./styles.css?v=20260508-v27-compact-clean-header" />
+  </head>
+  <body class="print-resume">
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">TR</div>
+          <div>
+            <h1>Resume Studio</h1>
+            <p>Section-first tailoring for faster applications</p>
+          </div>
+        </div>
+
+        <!-- Step 1: Job Description -->
+        <section class="panel">
+          <div class="panel-title">
+            <span>1</span>
+            <h2>Job Description</h2>
+          </div>
+          <textarea id="jobDescription" spellcheck="true" placeholder="Paste the full StepStone / LinkedIn job description here..."></textarea>
+          <div class="ai-draft-box">
+            <label for="externalResumeDraft">1. Selected resume sections from ChatGPT</label>
+            <textarea id="externalResumeDraft" spellcheck="true" placeholder="Paste the selected tailored sections from ChatGPT here, usually Kurzprofil, Technische Kenntnisse, and Projekterfahrung. Stable sections stay unchanged."></textarea>
+
+            <label for="externalCoverLetterDraft">2. Cover letter content from ChatGPT</label>
+            <textarea id="externalCoverLetterDraft" spellcheck="true" placeholder="Paste the tailored Anschreiben / cover letter text here. It will update the cover letter preview/editor."></textarea>
+
+            <div class="button-row ai-draft-actions">
+              <button id="applyAiDrafts" class="primary-btn" type="button">Apply AI drafts</button>
+              <button id="saveAiDrafts" class="ghost-btn" type="button">Save drafts</button>
+            </div>
+            <label class="checkbox-line">
+              <input id="includeProfileInPrompt" type="checkbox" checked />
+              Include Kurzprofil in copied prompt
+            </label>
+            <label class="checkbox-line">
+              <input id="includeSkillsInPrompt" type="checkbox" checked />
+              Include Technische Kenntnisse in copied prompt
+            </label>
+            <label class="checkbox-line">
+              <input id="includeCoverLetterInPrompt" type="checkbox" checked />
+              Include current cover letter in copied prompt
+            </label>
+            <button id="copyAiPrompt" class="ghost-btn full-btn" type="button">Copy AI prompt for ChatGPT</button>
+            <p id="aiDraftStatus" class="save-status"></p>
+          </div>
+          <div class="button-row">
+            <button id="analyzeJob" class="primary-btn" type="button">Analyze job</button>
+            <button id="sampleJob" class="ghost-btn" type="button">Sample</button>
+          </div>
+        </section>
+
+        <!-- Step 2: Target -->
+
+        <section class="panel compact">
+          <div class="panel-title">
+            <span>2</span>
+            <h2>Target</h2>
+          </div>
+          <label for="profileSelect">Resume profile</label>
+          <select id="profileSelect">
+            <option value="backend">Backend Engineer</option>
+            <option value="frontend">Frontend Engineer</option>
+            <option value="fullstack" selected>Fullstack Engineer</option>
+            <option value="lead">Team Lead</option>
+            <option value="architect">Solution Architect</option>
+          </select>
+
+          <label for="templateSelect">Template</label>
+          <select id="templateSelect">
+            <option value="classicBlue" selected>DE Classic Blue ATS</option>
+            <option value="executiveNavy">DE Executive Navy</option>
+            <option value="compactTech">DE Compact Technical</option>
+            <option value="modernAzure">DE Modern Azure</option>
+            <option value="minimalSlate">DE Minimal Slate</option>
+          </select>
+
+
+          <label for="resumeLanguage">Resume language</label>
+          <select id="resumeLanguage">
+            <option value="de" selected>Deutsch / German</option>
+            <option value="en">English</option>
+          </select>
+        </section>
+
+        <!-- Step 3: Export & Save -->
+        <section class="panel compact">
+          <div class="panel-title">
+            <span>3</span>
+            <h2>Export &amp; Save</h2>
+          </div>
+          <div class="button-grid">
+            <button id="tailorAll" class="primary-btn" type="button">Tailor all sections</button>
+            <button id="printResume" class="ghost-btn" type="button">Print / PDF</button>
+          </div>
+          <button id="generateCoverLetter" class="ghost-btn" type="button" style="width:100%;margin-top:6px">
+            ✉️ Generate Cover Letter
+          </button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+            <button id="saveAllData" class="primary-btn" type="button">💾 Save Data</button>
+            <button id="loadSavedData" class="ghost-btn" type="button">📂 Load Saved</button>
+          </div>
+          <p id="saveStatus" class="save-status"></p>
+          <p class="helper">Save Data stores personal info + sections to local SQLite DB.</p>
+        </section>
+
+        <!-- AI Status -->
+        <section class="panel compact">
+          <div class="panel-title">
+            <span>AI</span>
+            <h2>Tailoring Engine</h2>
+          </div>
+          <p id="aiStatus" class="status-bar">Rule-based mode. Start with OPENAI_API_KEY to enable AI Tailor.</p>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <section class="topbar">
+          <div>
+            <p class="eyebrow">Local MVP</p>
+            <h2>Tailor once, export cleanly</h2>
+          </div>
+          <div class="score-card">
+            <span id="matchScore">0%</span>
+            <small>job match</small>
+          </div>
+        </section>
+
+        <section class="insights">
+          <article>
+            <h3>Detected Keywords</h3>
+            <div id="keywordList" class="chip-list"></div>
+          </article>
+          <article>
+            <h3>Recommended Focus</h3>
+            <p id="focusText">Paste a job description and analyze it to see the tailoring direction.</p>
+          </article>
+          <article>
+            <h3>Language &amp; Market Fit</h3>
+            <p id="languageFitText">Analyze a job description to see if it is Germany-market or German-language dependent.</p>
+          </article>
+        </section>
+
+        <!-- Comparison panel (shown when comparing external AI content) -->
+        <div id="comparisonPanel" class="comparison-panel print-hidden" style="display:none">
+          <h3>📊 Content Comparison <small id="comparisonSectionLabel" style="font-weight:400;font-size:13px;color:var(--muted)"></small></h3>
+          <div class="comparison-grid">
+            <div class="comparison-col">
+              <div class="comparison-col-label label-local">📌 Current / Local Tailored</div>
+              <div id="comparisonLocal" class="comparison-content"></div>
+              <button class="comparison-apply-btn" type="button" id="applyLocalBtn" style="display:none">← Keep Local</button>
+            </div>
+            <div class="comparison-col">
+              <div class="comparison-col-label label-external">🤖 External AI (ChatGPT / Claude)</div>
+              <div id="comparisonExternal" class="comparison-content is-external"></div>
+              <button class="comparison-apply-btn" type="button" id="applyExternalBtn">✓ Use External AI</button>
+            </div>
+          </div>
+        </div>
+
+        <section class="editor-preview">
+          <div class="editor-column">
+            <div class="section-heading">
+              <h2>Section Tailoring</h2>
+              <button id="resetContent" class="ghost-btn small" type="button">Reset</button>
+            </div>
+            <div class="editor-save-bar">
+              <div>
+                <span class="editor-save-label">Personal info + sections</span>
+                <p id="inlineSaveStatus" class="save-status"></p>
+              </div>
+              <button id="saveAllInline" class="primary-btn small" type="button">Save All</button>
+            </div>
+            <div id="personalEditor" class="personal-editor"></div>
+            <div id="sectionEditor" class="section-editor"></div>
+          </div>
+
+          <div class="preview-column">
+            <div class="section-heading print-hidden">
+              <h2>Live Preview</h2>
+              <span id="templateBadge">DE photo modern</span>
+            </div>
+            <p id="pageWarning" class="page-warning print-hidden" hidden></p>
+
+            <!-- Tab toggle -->
+            <div class="view-tabs print-hidden">
+              <button id="tabResume" class="tab-btn is-active" type="button">📄 Lebenslauf</button>
+              <button id="tabCoverLetter" class="tab-btn" type="button">✉️ Anschreiben</button>
+              <button id="printResumePreview" class="tab-btn print-tab-btn" type="button">Print / PDF</button>
+            </div>
+
+            <!-- Resume preview -->
+            <div class="preview-frame" id="resumeView">
+              <article id="resumePreview" class="resume-page"></article>
+            </div>
+
+            <!-- Cover letter preview (separate print page) -->
+            <div class="preview-frame" id="coverLetterView" style="display:none">
+              <article id="coverLetterPreview" class="cover-letter-page"></article>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js?v=20260508-v27-compact-clean-header"></script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+tailored-resume-studio/node_modules/
+
+# Local SQLite data and uploaded/private resume data
+*.db
+*.db-shm
+*.db-wal
+tailored-resume-studio/resume_studio.db*
+
+# Generated PDFs, browser profiles, and visual checks
+tailored-resume-studio/outputs/
+tailored-resume-studio/scripts/generate_*_fixed_pdfs.py
+
+# Temporary document analysis artifacts
+.tmp-docx-analysis/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
