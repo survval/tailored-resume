@@ -1635,6 +1635,7 @@ async function applyAiDrafts() {
 function cleanProjectLine(line = "") {
   return line
     .trim()
+    .replace(/^[-*•●▪▫◦]\s*/, "")
     .replace(/^[-•●▪▫◦]\s*/, "")
     .replace(/^[-•]\s*/, "")
     .replace(/\s+/g, " ");
@@ -1652,12 +1653,59 @@ function looksLikeProjectMeta(line = "") {
 }
 
 function renderProjects(projectText) {
-  return projectText
-    .split("\n\n")
-    .map((project) => {
-      const lines = project.split("\n").map(cleanProjectLine).filter(Boolean);
-      const heading = lines.shift() || "Project";
-      const meta = lines.length && looksLikeProjectMeta(lines[0]) ? lines.shift() : "";
+  const rawLines = String(projectText || "")
+    .replace(/\r/g, "")
+    .split("\n")
+    .map((line) => line.trim());
+  const blocks = [];
+  let currentBlock = [];
+
+  rawLines.forEach((line, index) => {
+    if (!line) return;
+
+    const cleaned = cleanProjectLine(line);
+    const nextLine = rawLines.slice(index + 1).find((candidate) => candidate.trim());
+    const nextCleaned = nextLine ? cleanProjectLine(nextLine) : "";
+    const startsChatGptProject = looksLikeProjectMeta(cleaned) && currentBlock.length > 0;
+    const startsTwoLineProject =
+      currentBlock.length > 0 &&
+      !cleaned.startsWith("Technologies") &&
+      !cleaned.startsWith("Technologien") &&
+      !looksLikeProjectMeta(cleaned) &&
+      looksLikeProjectMeta(nextCleaned);
+
+    if (startsChatGptProject || startsTwoLineProject) {
+      blocks.push(currentBlock);
+      currentBlock = [];
+    }
+
+    if (/^(technologies|technologien)$/i.test(cleaned)) {
+      return;
+    }
+
+    const previousLine = rawLines.slice(0, index).reverse().find((candidate) => candidate.trim());
+    const previousCleaned = previousLine ? cleanProjectLine(previousLine) : "";
+    if (/^(technologies|technologien)$/i.test(previousCleaned)) {
+      currentBlock.push(`Technologies: ${cleaned}`);
+      return;
+    }
+
+    currentBlock.push(cleaned);
+  });
+
+  if (currentBlock.length) {
+    blocks.push(currentBlock);
+  }
+
+  return blocks
+    .map((lines) => {
+      let heading = lines.shift() || "Project";
+      let meta = lines.length && looksLikeProjectMeta(lines[0]) ? lines.shift() : "";
+      const headingParts = heading.split("|").map((part) => part.trim()).filter(Boolean);
+      if (!meta && headingParts.length >= 4) {
+        heading = headingParts[0];
+        meta = headingParts.slice(1).join(" | ");
+      }
       const bullets = lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("");
       return `
         <div class="project-block">
