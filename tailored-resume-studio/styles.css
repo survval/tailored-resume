@@ -709,15 +709,11 @@ label {
 
 .template-classic-blue .resume-header {
   align-items: start;
-  text-align: center;
+  text-align: left;
 }
 
 .template-classic-blue .resume-identity {
   min-width: 0;
-}
-
-.template-classic-blue.has-photo .resume-identity {
-  align-self: center;
 }
 
 .template-classic-blue .resume-contact {
@@ -725,9 +721,9 @@ label {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px 18px;
   align-items: start;
-  justify-content: center;
+  justify-content: stretch;
   max-width: 100%;
-  margin-inline: auto;
+  margin-inline: 0;
 }
 
 .template-classic-blue .resume-contact span {
@@ -739,7 +735,7 @@ label {
 
 .template-classic-blue.no-photo .resume-contact span:nth-child(odd):last-child {
   grid-column: 1 / -1;
-  justify-self: center;
+  justify-self: start;
 }
 
 .template-executive-navy {
@@ -1607,20 +1603,16 @@ body.print-cover-letter #resumeView { display: none !important; }
 
   .template-classic-blue .resume-header {
     align-items: start;
-    text-align: center;
-  }
-
-  .template-classic-blue.has-photo .resume-identity {
-    align-self: center;
+    text-align: left;
   }
 
   .template-classic-blue .resume-contact {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5mm 5mm;
-    justify-content: center;
+    justify-content: stretch;
     max-width: 145mm;
-    margin-inline: auto;
+    margin-inline: 0;
   }
 
   .template-classic-blue .resume-contact span {
