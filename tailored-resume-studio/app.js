@@ -1140,6 +1140,7 @@ function renderDetailLines(text, labelsToStrip = [], options = {}) {
     .flatMap((line) => {
       const withoutLabel = stripPattern ? line.trim().replace(stripPattern, "") : line.trim();
       return withoutLabel
+        .replace(/\s+[*•●▪▫◦]\s+/g, "\n* ")
         .replace(/\s+[•●▪▫◦]\s+/g, "\n• ")
         .split("\n")
         .map((part) => part.trim())
@@ -1147,6 +1148,8 @@ function renderDetailLines(text, labelsToStrip = [], options = {}) {
     });
 
   if (!lines.length) return "<p></p>";
+
+  const hasPlainBullet = (line) => /^[*•●▪▫◦-]\s+/.test(line);
 
   const normalizedLines = options.splitCommaItems && lines.length === 1
     ? lines[0]
@@ -1156,8 +1159,9 @@ function renderDetailLines(text, labelsToStrip = [], options = {}) {
     : lines;
 
   const hasBullets = normalizedLines.some((line) => /^[•●▪▫◦-]\s+/.test(line));
-  if (hasBullets) {
-    return `<ul class="detail-list">${normalizedLines
+  if (hasBullets || normalizedLines.some(hasPlainBullet)) {
+    const bulletLines = normalizedLines.map((line) => line.replace(/^[*•●▪▫◦]\s+/, "- "));
+    return `<ul class="detail-list">${bulletLines
       .map((line) => `<li>${escapeHtml(line.replace(/^[•●▪▫◦-]\s+/, ""))}</li>`)
       .join("")}</ul>`;
   }
