@@ -28,6 +28,10 @@
             <h2>Job Description</h2>
           </div>
           <textarea id="jobDescription" spellcheck="true" placeholder="Paste the full StepStone / LinkedIn job description here..."></textarea>
+          <div class="button-row">
+            <button id="analyzeJob" class="primary-btn" type="button">Analyze job</button>
+            <button id="sampleJob" class="ghost-btn" type="button">Sample</button>
+          </div>
           <div class="ai-draft-box">
             <label for="externalResumeDraft">1. Selected resume sections from ChatGPT</label>
             <textarea id="externalResumeDraft" spellcheck="true" placeholder="Paste the selected tailored sections from ChatGPT here, usually Kurzprofil, Technische Kenntnisse, and Projekterfahrung. Stable sections stay unchanged."></textarea>
@@ -53,10 +57,6 @@
             </label>
             <button id="copyAiPrompt" class="ghost-btn full-btn" type="button">Copy AI prompt for ChatGPT</button>
             <p id="aiDraftStatus" class="save-status"></p>
-          </div>
-          <div class="button-row">
-            <button id="analyzeJob" class="primary-btn" type="button">Analyze job</button>
-            <button id="sampleJob" class="ghost-btn" type="button">Sample</button>
           </div>
         </section>
 
