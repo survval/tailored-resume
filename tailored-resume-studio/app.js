@@ -319,7 +319,7 @@ function findCriticalGermanRequirement(jobText) {
       label: "fluent German",
       rank: germanLevelRank.c1,
       type: "fluent",
-      pattern: /\b(?:deutsch|german)\b[^\n]{0,80}\b(?:fließend|fliessend|fluent|verhandlungssicher|business fluent)\b|\b(?:fließend|fliessend|fluent|verhandlungssicher|business fluent)\b[^\n]{0,80}\b(?:deutsch|german)\b/i,
+      pattern: /\b(?:deutsch|german)\b[^\n]{0,80}\b(?:fließend|fliessend|fluent|fluency|verhandlungssicher|business fluent)\b|\b(?:fließend|fliessend|fluent|fluency|verhandlungssicher|business fluent)\b[^\n]{0,80}\b(?:deutsch|german)\b|\bfluency\b[^\n]{0,80}\b(?:both|in)\b[^\n]{0,80}\b(?:german|deutsch)\b[^\n]{0,40}\b(?:english|englisch)\b|\bfluency\b[^\n]{0,80}\b(?:english|englisch)\b[^\n]{0,40}\b(?:german|deutsch)\b/i,
     },
     {
       label: "very good German",
@@ -424,6 +424,11 @@ function assessLanguageFit(jobText) {
 
   const criticalGermanSignals = [
     "fluent german",
+    "german fluency",
+    "fluency in german",
+    "fluency in both german",
+    "fluency in both german & english",
+    "fluency in both german and english",
     "native german",
     "german native",
     "c1 german",
