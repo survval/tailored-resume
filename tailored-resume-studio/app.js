@@ -289,40 +289,74 @@ function findGermanRequirement(jobText) {
   const text = normalizeText(jobText);
   const patterns = [
     /\b(?:sprachkenntnisse|language skills|languages)\b[^\n]{0,120}\bdeutsch\b[^\n]{0,80}\b(a1|a2|b1|b2|c1|c2)\b/i,
-    /\bdeutsch(?:kenntnisse)?\b[^\n]{0,100}\b(?:mindestens|mind\.?|minimum|min\.?|ab|niveau|level)?\s*\(?\b(a1|a2|b1|b2|c1|c2)\b\)?/i,
-    /\b(a1|a2|b1|b2|c1|c2)\b[^\n]{0,80}\bdeutsch(?:kenntnisse)?\b/i,
+    /\bdeutsch(?:kenntnisse)?\b[^\n]{0,100}\b(?:mindestens|mind\.?|min\.?|minimum|ab|niveau|level)?\s*\(?\b(a1|a2|b1|b2|c1|c2)\b\)?/i,
+    /\b(?:mindestens|mind\.?|min\.?|minimum|ab)?\s*\(?\b(a1|a2|b1|b2|c1|c2)\b\)?[^\n]{0,80}\bdeutsch(?:kenntnisse)?\b/i,
     /\bgerman\b[^\n]{0,100}\b(?:at least|minimum|min\.?|level)?\s*\(?\b(a1|a2|b1|b2|c1|c2)\b\)?/i,
-    /\b(a1|a2|b1|b2|c1|c2)\b[^\n]{0,80}\bgerman\b/i,
+    /\b(?:at least|minimum|min\.?)?\s*\(?\b(a1|a2|b1|b2|c1|c2)\b\)?[^\n]{0,80}\bgerman\b/i,
   ];
 
   for (const pattern of patterns) {
     const match = text.match(pattern);
     if (match) {
       const level = match[1].toLowerCase();
-      return { level: level.toUpperCase(), rank: germanLevelRank[level] };
+      return { label: `German ${level.toUpperCase()}`, level: level.toUpperCase(), rank: germanLevelRank[level], type: "level" };
     }
   }
 
   return null;
 }
 
+function findCriticalGermanRequirement(jobText) {
+  const text = normalizeText(jobText);
+  const patterns = [
+    {
+      label: "native-level German",
+      rank: germanLevelRank.c2,
+      type: "native",
+      pattern: /\b(?:deutsch|german)\b[^\n]{0,80}\b(?:muttersprache|muttersprachlich|native speaker|native level)\b|\b(?:muttersprache|muttersprachlich|native speaker|native level)\b[^\n]{0,80}\b(?:deutsch|german)\b/i,
+    },
+    {
+      label: "fluent German",
+      rank: germanLevelRank.c1,
+      type: "fluent",
+      pattern: /\b(?:deutsch|german)\b[^\n]{0,80}\b(?:fließend|fliessend|fluent|verhandlungssicher|business fluent)\b|\b(?:fließend|fliessend|fluent|verhandlungssicher|business fluent)\b[^\n]{0,80}\b(?:deutsch|german)\b/i,
+    },
+    {
+      label: "very good German",
+      rank: germanLevelRank.c1,
+      type: "very-good",
+      pattern: /\b(?:sehr gute|sehr gutes|sehr guten|sehr gut|excellent|very good)\b[^\n]{0,80}\b(?:deutsch|german|deutschkenntnisse|german skills)\b|\b(?:deutsch|german|deutschkenntnisse|german skills)\b[^\n]{0,80}\b(?:sehr gut|very good|excellent)\b/i,
+    },
+    {
+      label: "German required",
+      rank: null,
+      type: "required",
+      pattern: /\b(?:deutsch|german|deutschkenntnisse|german skills)\b[^\n]{0,80}\b(?:erforderlich|vorausgesetzt|pflicht|required|mandatory|must have)\b|\b(?:erforderlich|vorausgesetzt|pflicht|required|mandatory|must have)\b[^\n]{0,80}\b(?:deutsch|german|deutschkenntnisse|german skills)\b/i,
+    },
+  ];
+
+  return patterns.find(({ pattern }) => pattern.test(text)) || null;
+}
+
 function findCandidateGermanLevel() {
   const text = normalizeText(state.tailoredSections.languages || "");
-  const levelMatch = text.match(/\bdeutsch\b[^,\n;]{0,40}\b(a1|a2|b1|b2|c1|c2)\b/i);
+  const levelMatch =
+    text.match(/\bdeutsch\b[^,\n;]{0,60}\b(a1|a2|b1|b2|c1|c2)\b/i) ||
+    text.match(/\b(a1|a2|b1|b2|c1|c2)\b[^,\n;]{0,60}\bdeutsch\b/i);
   if (levelMatch) {
     const level = levelMatch[1].toLowerCase();
     return { level: level.toUpperCase(), rank: germanLevelRank[level] };
   }
 
-  if (/\bdeutsch\b[^,\n;]{0,60}\b(?:muttersprache|muttersprachlich|native)\b/i.test(text)) {
+  if (/\bdeutsch\b[^,\n;]{0,80}\b(?:muttersprache|muttersprachlich|native)\b|\b(?:muttersprache|muttersprachlich|native)\b[^,\n;]{0,80}\bdeutsch\b/i.test(text)) {
     return { level: "C2", rank: germanLevelRank.c2 };
   }
 
-  if (/\bdeutsch\b[^,\n;]{0,60}\b(?:c1|fließend|fliessend|verhandlungssicher)\b/i.test(text)) {
+  if (/\bdeutsch\b[^,\n;]{0,80}\b(?:c1|fließend|fliessend|fluent|verhandlungssicher)\b|\b(?:fließend|fliessend|fluent|verhandlungssicher)\b[^,\n;]{0,80}\bdeutsch\b/i.test(text)) {
     return { level: "C1", rank: germanLevelRank.c1 };
   }
 
-  if (/\bdeutsch\b[^,\n;]{0,60}\b(?:b2|fortgeschritten|gute deutschkenntnisse)\b/i.test(text)) {
+  if (/\bdeutsch\b[^,\n;]{0,80}\b(?:b2|fortgeschritten|gute deutschkenntnisse|gutes deutsch)\b|\b(?:fortgeschritten|gute deutschkenntnisse|gutes deutsch)\b[^,\n;]{0,80}\bdeutsch\b/i.test(text)) {
     return { level: "B2", rank: germanLevelRank.b2 };
   }
 
@@ -347,6 +381,7 @@ function assessLanguageFit(jobText) {
   const signals = [];
   let score = 0;
   const requiredGermanLevel = findGermanRequirement(jobText);
+  const criticalGermanRequirement = findCriticalGermanRequirement(jobText);
   const candidateGermanLevel = findCandidateGermanLevel();
 
   const germanMarketSignals = [
@@ -397,13 +432,22 @@ function assessLanguageFit(jobText) {
     "deutsch c2",
     "mind c1",
     "mind. c1",
+    "min c1",
+    "min. c1",
     "mindestens c1",
     "minimum c1",
+    "ab c1",
     "sprachkenntnisse deutsch",
     "fließend deutsch",
+    "deutsch fließend",
     "fliessend deutsch",
+    "deutsch fliessend",
+    "sehr gutes deutsch",
+    "sehr gut deutsch",
     "verhandlungssicher deutsch",
+    "deutsch verhandlungssicher",
     "muttersprachlich deutsch",
+    "muttersprache deutsch",
     "deutsch muttersprache",
     "deutsch auf muttersprachlichem niveau",
     "sehr gute deutschkenntnisse",
@@ -440,19 +484,31 @@ function assessLanguageFit(jobText) {
     signals.push(`required German level: ${requiredGermanLevel.level}`);
   }
 
-  if (candidateGermanLevel) {
-    signals.push(`your saved German level: ${candidateGermanLevel.level}`);
+  if (criticalGermanRequirement && (!requiredGermanLevel || criticalGermanRequirement.rank !== requiredGermanLevel.rank)) {
+    score += criticalGermanRequirement.rank ? 45 : 30;
+    signals.push(`critical German requirement: ${criticalGermanRequirement.label}`);
   }
 
+  if (candidateGermanLevel) {
+    signals.push(`your saved German level: ${candidateGermanLevel.level}`);
+  } else if (requiredGermanLevel || criticalGermanRequirement) {
+    signals.push("your saved German level: not found");
+  }
+
+  const requiredRank = Math.max(requiredGermanLevel?.rank || 0, criticalGermanRequirement?.rank || 0);
+  const requiredLabel = requiredGermanLevel?.level || criticalGermanRequirement?.label || "German";
   const isCandidateBelowGermanRequirement =
-    requiredGermanLevel &&
-    (!candidateGermanLevel || candidateGermanLevel.rank < requiredGermanLevel.rank);
+    requiredRank > 0 &&
+    (!candidateGermanLevel || candidateGermanLevel.rank < requiredRank);
+  const isCandidateLevelMissingForGermanRequirement =
+    !candidateGermanLevel && (requiredGermanLevel || criticalGermanRequirement);
   const isLanguageCritical =
     matchedCriticalGermanSignals.length > 0 ||
     (requiredGermanLevel && requiredGermanLevel.rank >= germanLevelRank.c1) ||
+    (criticalGermanRequirement && (criticalGermanRequirement.rank === null || criticalGermanRequirement.rank >= germanLevelRank.c1)) ||
     isCandidateBelowGermanRequirement;
   const level = isCandidateBelowGermanRequirement
-    ? `Red flag: German ${requiredGermanLevel.level} required`
+    ? `Red flag: ${requiredLabel} required`
     : isLanguageCritical
       ? "Red flag: strong German required"
       : score >= 65
@@ -462,7 +518,9 @@ function assessLanguageFit(jobText) {
           : "Low Germany-market dependency";
   const recommendation =
     isCandidateBelowGermanRequirement
-      ? `This job asks for German ${requiredGermanLevel.level}, but your saved resume shows ${candidateGermanLevel?.level || "no clear German level"}. Treat this as a strong risk before investing time.`
+      ? `This job asks for ${requiredLabel}, but your saved resume shows ${candidateGermanLevel?.level || "no clear German level"}. Treat German speaking as crucial before investing time.`
+      : isCandidateLevelMissingForGermanRequirement
+        ? "German speaking appears crucial for this job, but your saved German level is missing. Add your honest level before deciding whether to apply."
       : isLanguageCritical
         ? "German appears to be a hard requirement. Apply only if your German level honestly matches it, or make your current German level very clear before investing time."
         : score >= 65
