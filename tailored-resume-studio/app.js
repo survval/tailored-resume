@@ -490,9 +490,9 @@ function assessLanguageFit(jobText) {
   }
 
   if (candidateGermanLevel) {
-    signals.push(`your saved German level: ${candidateGermanLevel.level}`);
+    signals.push(`your German level: ${candidateGermanLevel.level}`);
   } else if (requiredGermanLevel || criticalGermanRequirement) {
-    signals.push("your saved German level: not found");
+    signals.push("your German level: not found");
   }
 
   const requiredRank = Math.max(requiredGermanLevel?.rank || 0, criticalGermanRequirement?.rank || 0);
@@ -521,13 +521,13 @@ function assessLanguageFit(jobText) {
       ? `This job asks for ${requiredLabel}, but your saved resume shows ${candidateGermanLevel?.level || "no clear German level"}. Treat German speaking as crucial before investing time.`
       : isCandidateLevelMissingForGermanRequirement
         ? "German speaking appears crucial for this job, but your saved German level is missing. Add your honest level before deciding whether to apply."
-      : isLanguageCritical
-        ? "German appears to be a hard requirement. Apply only if your German level honestly matches it, or make your current German level very clear before investing time."
-        : score >= 65
-          ? "Use a Germany-focused resume version. Keep German language level visible, mention Germany/EU work context if truthful, and emphasize secure APIs, DevOps ownership, AWS, and financial-domain reliability."
-          : score >= 35
-            ? "Use a Germany-friendly resume version and keep language details visible."
-            : "A general international resume should be enough unless the recruiter asks for German details.";
+        : isLanguageCritical
+          ? "German appears to be a hard requirement. Apply only if your German level honestly matches it, or make your current German level very clear before investing time."
+          : score >= 65
+            ? "Use a Germany-focused resume version. Keep German language level visible, mention Germany/EU work context if truthful, and emphasize secure APIs, DevOps ownership, AWS, and financial-domain reliability."
+            : score >= 35
+              ? "Use a Germany-friendly resume version and keep language details visible."
+              : "A general international resume should be enough unless the recruiter asks for German details.";
 
   return {
     score,
