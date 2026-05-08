@@ -40,12 +40,12 @@ const resumePresets = {
       skills:
         "Backend:\nJava (8-21), Spring, Spring Boot, Spring MVC, REST APIs, SOAP, Microservices\n\nEvent-Driven & Integration:\nKafka (basic knowledge), Messaging Patterns, REST Clients, SOAP Integrations, OpenAPI/Swagger\n\nCloud & Container:\nAzure, AWS, Docker, Kubernetes, Azure Container Registry, Cloud-native Concepts\n\nCI/CD & DevOps:\nAzure DevOps, Jenkins, GitHub, CI/CD Pipelines, Build & Deployment Automation\n\nMonitoring & Observability:\nGrafana, Logging, Monitoring, Production Debugging, Incident Management\n\nDatabases:\nPostgreSQL, Oracle, MongoDB, Redis, SQLite\n\nSecurity:\nKeycloak, OAuth2, OIDC, JWT, Spring Security, SSL Certificate Management\n\nFrontend:\nVue.js (2/3), React, TypeScript, JavaScript, PrimeFaces, JSF\n\nTools & Methods:\nGit, Jira, Confluence, Agile (Scrum), IntelliJ, Eclipse, VS Code",
       projects:
-        "Enterprise Platform Modernization | Senior Fullstack Engineer | 2022 - Present\n- Designed and delivered backend APIs and frontend modules for business-critical workflows.\n- Improved maintainability through modular architecture, reusable components, and better deployment practices.\n- Collaborated with product owners, QA, and distributed engineering teams.\n\nDigital Services Portal | Fullstack Developer | 2019 - 2022\n- Built responsive user interfaces and REST integrations for customer-facing services.\n- Implemented role-based workflows, validations, and reporting features.\n- Supported releases, production fixes, and performance improvements.",
+        "PitchYou GmbH, Cologne, Germany\nRecruiting & Workflow Platform | Senior Full-Stack Developer | May 2023 - Oct 2025\n- Developed and modernized a WhatsApp-based recruiting platform with Java, Spring Boot, Vue.js, and PostgreSQL.\n- Implemented scalable REST APIs, ATS integrations, and automated recruiting and onboarding workflows.\n- Introduced modern security mechanisms with OAuth2/OIDC, JWT, and Keycloak.\n- Migrated core platform components from Java 8 to Java 21 and from Vue 2 to Vue 3.\n- Improved stability, maintainability, and observability through refactoring, monitoring, and production debugging.\n- Collaborated with Product Owners, QA, and international development teams and mentored junior developers.\n\nTechMahindra (Client: BASF SE), Ludwigshafen, Germany\nEnterprise Logistics & Integration Platform | Technical Consultant | Jan 2018 - Apr 2023\n- Developed and enhanced business-critical enterprise applications within a service-oriented architecture.\n- Implemented REST/SOAP interfaces and integrated modern and legacy COBOL-based systems.\n- Supported cloud migrations to Azure, including CI/CD, deployment, and infrastructure processes.\n- Analyzed and sustainably resolved critical production issues in live system landscapes.\n- Automated build and deployment processes to improve stability and release quality.\n- Coordinated technical alignment between onsite and offshore teams.\n\nTechMahindra (Client: BASF), Hyderabad, India\nLogistics Backend Services | Senior Software Engineer | Sep 2016 - Dec 2017\n- Developed Java and Spring-based backend services for logistics and supply-chain processes.\n- Built REST interfaces and backend components for enterprise integration workflows.\n- Supported production systems through incident analysis, debugging, and technical documentation.",
       certifications:
-        "Cloud fundamentals, Agile delivery, Java/Spring professional training",
+        "- Microsoft Azure Developer Associate (AZ-204)\n- Microsoft Azure Fundamentals (AZ-900)",
       education:
-        "Bachelor's degree in Computer Science / Engineering",
-      languages: "English: Professional, German: Learning / A2-B1, Telugu: Native",
+        "Bachelor of Science (Mathematics, Physics, Chemistry)\nD.R.N.S.C.V.S College, India",
+      languages: "English: Fluent\nGerman: B2\nTelugu: Native",
     },
   },
 };
@@ -1635,6 +1635,7 @@ async function applyAiDrafts() {
 function cleanProjectLine(line = "") {
   return line
     .trim()
+    .replace(/^[-•●▪▫◦]\s*/, "")
     .replace(/^[-•]\s*/, "")
     .replace(/\s+/g, " ");
 }
@@ -1657,11 +1658,11 @@ function renderProjects(projectText) {
       const lines = project.split("\n").map(cleanProjectLine).filter(Boolean);
       const heading = lines.shift() || "Project";
       const meta = lines.length && looksLikeProjectMeta(lines[0]) ? lines.shift() : "";
-      const bullets = lines.map((line) => `<li>${line}</li>`).join("");
+      const bullets = lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("");
       return `
         <div class="project-block">
-          <h4>${heading}</h4>
-          ${meta ? `<div class="project-meta">${meta}</div>` : ""}
+          <h4>${escapeHtml(heading)}</h4>
+          ${meta ? `<div class="project-meta">${escapeHtml(meta)}</div>` : ""}
           <ul>${bullets}</ul>
         </div>
       `;
