@@ -82,6 +82,27 @@ Open the app:
 http://localhost:5178
 ```
 
+## Optional Local Domain
+
+If you prefer a fixed local name instead of remembering changing localhost ports, map this domain to your machine:
+
+```text
+127.0.0.1 tailor-resume-studio.de
+```
+
+On Windows, add it to:
+
+```text
+C:\Windows\System32\drivers\etc\hosts
+```
+
+Then use one of these options:
+
+- With the default port: `http://tailor-resume-studio.de:5178`
+- Without a port: set `PORT=80` in your local `.env`, then open `http://tailor-resume-studio.de`
+
+Port `80` must be free. If another service already uses it, keep `PORT=5178` and use the URL with `:5178`.
+
 If you only want the static rule-based UI, you can also run:
 
 ```powershell

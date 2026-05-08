@@ -38,7 +38,7 @@ const resumePresets = {
       profile:
         "Senior software engineer with strong experience across backend, frontend, cloud integration, and enterprise application delivery. Experienced in building scalable web applications, collaborating with cross-functional teams, and adapting solutions to business goals.",
       skills:
-        "Java, Spring Boot, REST APIs, Microservices, SQL, PostgreSQL, Angular, React, TypeScript, JavaScript, HTML, CSS, Azure, AWS, Docker, CI/CD, Git, Agile, System Design, Team Leadership",
+        "Backend:\nJava (8-21), Spring, Spring Boot, Spring MVC, REST APIs, SOAP, Microservices\n\nEvent-Driven & Integration:\nKafka (basic knowledge), Messaging Patterns, REST Clients, SOAP Integrations, OpenAPI/Swagger\n\nCloud & Container:\nAzure, AWS, Docker, Kubernetes, Azure Container Registry, Cloud-native Concepts\n\nCI/CD & DevOps:\nAzure DevOps, Jenkins, GitHub, CI/CD Pipelines, Build & Deployment Automation\n\nMonitoring & Observability:\nGrafana, Logging, Monitoring, Production Debugging, Incident Management\n\nDatabases:\nPostgreSQL, Oracle, MongoDB, Redis, SQLite\n\nSecurity:\nKeycloak, OAuth2, OIDC, JWT, Spring Security, SSL Certificate Management\n\nFrontend:\nVue.js (2/3), React, TypeScript, JavaScript, PrimeFaces, JSF\n\nTools & Methods:\nGit, Jira, Confluence, Agile (Scrum), IntelliJ, Eclipse, VS Code",
       projects:
         "Enterprise Platform Modernization | Senior Fullstack Engineer | 2022 - Present\n- Designed and delivered backend APIs and frontend modules for business-critical workflows.\n- Improved maintainability through modular architecture, reusable components, and better deployment practices.\n- Collaborated with product owners, QA, and distributed engineering teams.\n\nDigital Services Portal | Fullstack Developer | 2019 - 2022\n- Built responsive user interfaces and REST integrations for customer-facing services.\n- Implemented role-based workflows, validations, and reporting features.\n- Supported releases, production fixes, and performance improvements.",
       certifications:
@@ -608,7 +608,32 @@ function tailorSkills() {
     const bHit = priority.some((keyword) => b.toLowerCase().includes(keyword));
     return Number(bHit) - Number(aHit);
   });
-  return sorted.join(", ");
+
+  const categoryRules = [
+    [state.language === "de" ? "Backend & Architektur" : "Backend & Architecture", ["java", "spring", "rest", "api", "microservices", "system design"]],
+    ["Frontend", ["angular", "react", "vue", "typescript", "javascript", "html", "css", "jsf", "primefaces"]],
+    ["Cloud & DevOps", ["aws", "azure", "docker", "kubernetes", "ci/cd", "jenkins", "devops", "github"]],
+    [state.language === "de" ? "Datenbanken" : "Databases", ["sql", "postgresql", "oracle", "mongodb", "redis", "sqlite"]],
+    [state.language === "de" ? "Qualität & Methoden" : "Quality & Methods", ["agile", "scrum", "testing", "team leadership", "jira", "confluence"]],
+  ];
+
+  const grouped = new Set();
+  const sections = categoryRules
+    .map(([category, matches]) => {
+      const categorySkills = sorted.filter((skill) =>
+        matches.some((match) => skill.toLowerCase().includes(match))
+      );
+      categorySkills.forEach((skill) => grouped.add(skill));
+      return categorySkills.length ? `${category}:\n${categorySkills.join(", ")}` : "";
+    })
+    .filter(Boolean);
+
+  const remaining = sorted.filter((skill) => !grouped.has(skill));
+  if (remaining.length) {
+    sections.push(`${getResumeLabels().otherTools}:\n${remaining.join(", ")}`);
+  }
+
+  return sections.join("\n\n");
 }
 
 function tailorProjects() {
