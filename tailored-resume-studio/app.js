@@ -1434,7 +1434,9 @@ function coverLetterFieldsToPlainText(fields = state.clFields || generateCoverLe
 }
 
 function getDraftResumeText() {
-  return normalizeDraftText(elements.externalResumeDraft?.value) || rewriteSectionsToPromptText();
+  // The copy prompt must reflect the live resume editor/preview, not a stale
+  // ChatGPT paste box that may still contain an older draft.
+  return rewriteSectionsToPromptText();
 }
 
 function getDraftCoverLetterText() {
