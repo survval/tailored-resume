@@ -1314,6 +1314,11 @@ body.print-cover-letter #resumeView { display: none !important; }
   margin-bottom: 8px;
 }
 
+.cl-signature.sig-plain {
+  font-size: 14px;
+  font-weight: 400;
+}
+
 .sig-picker {
   margin-top: 10px;
   padding-top: 10px;
@@ -1346,6 +1351,11 @@ body.print-cover-letter #resumeView { display: none !important; }
   transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
   color: #1a2340;
   line-height: 1.3;
+}
+
+.sig-option.sig-plain {
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .sig-option:hover {

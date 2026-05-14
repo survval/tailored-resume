@@ -1634,8 +1634,9 @@ async function applyAiDrafts() {
     switchTab("coverLetter");
     renderCoverLetterPreview();
   }
-  await saveAiDrafts();
-  setAiDraftStatus(`Applied ${appliedCount} draft update${appliedCount === 1 ? "" : "s"}.`);
+  setAiDraftStatus(
+    `Applied ${appliedCount} draft update${appliedCount === 1 ? "" : "s"} to the preview/editor only. Click Save Data to keep resume changes, or Save drafts to keep the pasted ChatGPT text.`
+  );
 }
 
 function cleanProjectLine(line = "") {
@@ -1916,10 +1917,11 @@ function generateCoverLetter() {
 
 // Signature font options
 const signatureFonts = [
-  { name: "Dancing Script", label: "Elegant" },
-  { name: "Caveat", label: "Casual" },
-  { name: "Pacifico", label: "Modern" },
-  { name: "Pinyon Script", label: "Formal" },
+  { name: "Plain", label: "Plain text", family: "Arial, sans-serif", className: "sig-plain" },
+  { name: "Dancing Script", label: "Elegant", family: "'Dancing Script', cursive" },
+  { name: "Caveat", label: "Casual", family: "'Caveat', cursive" },
+  { name: "Pacifico", label: "Modern", family: "'Pacifico', cursive" },
+  { name: "Pinyon Script", label: "Formal", family: "'Pinyon Script', cursive" },
 ];
 
 function renderCoverLetterPreview() {
@@ -1933,9 +1935,9 @@ function renderCoverLetterPreview() {
 
   // Build signature picker HTML
   const sigPicker = signatureFonts.map((f, i) => `
-    <button class="sig-option ${i === state.clSignatureFont ? "sig-active" : ""}"
+    <button class="sig-option ${f.className || ""} ${i === state.clSignatureFont ? "sig-active" : ""}"
       data-sig-index="${i}"
-      style="font-family:'${f.name}',cursive"
+      style="font-family:${f.family}"
       type="button"
       title="${f.label}">${cl.senderName}</button>
   `).join("");
@@ -1962,7 +1964,7 @@ function renderCoverLetterPreview() {
     <div class="cl-closing" contenteditable="true" data-cl-field="closing">${cl.closing}</div>
 
     <div class="cl-signature-block">
-      <div class="cl-signature" style="font-family:'${sigFont.name}',cursive" id="clSignatureDisplay">${cl.senderName}</div>
+      <div class="cl-signature ${sigFont.className || ""}" style="font-family:${sigFont.family}" id="clSignatureDisplay">${cl.senderName}</div>
       <div class="sig-picker print-hidden">
         <span class="sig-picker-label">Unterschrift / Signature style:</span>
         <div class="sig-options">${sigPicker}</div>
@@ -1992,7 +1994,8 @@ function renderCoverLetterPreview() {
       const display = document.getElementById("clSignatureDisplay");
       if (display) {
         const f = signatureFonts[state.clSignatureFont];
-        display.style.fontFamily = `'${f.name}', cursive`;
+        display.style.fontFamily = f.family;
+        display.classList.toggle("sig-plain", f.className === "sig-plain");
       }
     });
   });
