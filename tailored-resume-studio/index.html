@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Caveat:wght@500&family=Pacifico&family=Pinyon+Script&display=swap" />
-    <link rel="stylesheet" href="./styles.css?v=20260514-v39-apply-preview-only" />
+    <link rel="stylesheet" href="./styles.css?v=20260514-v40-save-confirmation" />
   </head>
   <body class="print-resume">
     <div class="app-shell">
@@ -39,9 +39,8 @@
             <label for="externalCoverLetterDraft">2. Cover letter content from ChatGPT</label>
             <textarea id="externalCoverLetterDraft" spellcheck="true" placeholder="Paste the tailored Anschreiben / cover letter text here. It will update the cover letter preview/editor."></textarea>
 
-            <div class="button-row ai-draft-actions">
-              <button id="applyAiDrafts" class="primary-btn" type="button">Apply to preview</button>
-              <button id="saveAiDrafts" class="ghost-btn" type="button">Save drafts</button>
+            <div class="ai-draft-actions">
+              <button id="applyAiDrafts" class="primary-btn full-btn" type="button">Apply to preview</button>
             </div>
             <label class="checkbox-line">
               <input id="includeProfileInPrompt" type="checkbox" checked />
@@ -213,6 +212,6 @@
       </main>
     </div>
 
-    <script src="./app.js?v=20260514-v39-apply-preview-only"></script>
+    <script src="./app.js?v=20260514-v40-save-confirmation"></script>
   </body>
 </html>

@@ -218,7 +218,6 @@ const elements = {
   externalResumeDraft: document.querySelector("#externalResumeDraft"),
   externalCoverLetterDraft: document.querySelector("#externalCoverLetterDraft"),
   applyAiDrafts: document.querySelector("#applyAiDrafts"),
-  saveAiDrafts: document.querySelector("#saveAiDrafts"),
   includeProfileInPrompt: document.querySelector("#includeProfileInPrompt"),
   includeSkillsInPrompt: document.querySelector("#includeSkillsInPrompt"),
   includeCoverLetterInPrompt: document.querySelector("#includeCoverLetterInPrompt"),
@@ -1560,16 +1559,6 @@ async function persistAiDrafts() {
   });
 }
 
-async function saveAiDrafts() {
-  if (!elements.externalResumeDraft || !elements.externalCoverLetterDraft) return;
-  try {
-    await persistAiDrafts();
-    setAiDraftStatus("Saved AI drafts to SQLite.");
-  } catch (err) {
-    setAiDraftStatus("Save failed: " + err.message, true);
-  }
-}
-
 async function loadAiDrafts() {
   if (!elements.externalResumeDraft || !elements.externalCoverLetterDraft) return;
   try {
@@ -1635,7 +1624,7 @@ async function applyAiDrafts() {
     renderCoverLetterPreview();
   }
   setAiDraftStatus(
-    `Applied ${appliedCount} draft update${appliedCount === 1 ? "" : "s"} to the preview/editor only. Click Save Data to keep resume changes, or Save drafts to keep the pasted ChatGPT text.`
+    `Applied ${appliedCount} draft update${appliedCount === 1 ? "" : "s"} to the preview/editor only. Click Save Data when you want to keep these changes permanently.`
   );
 }
 
@@ -2066,7 +2055,6 @@ if (elements.generateCoverLetter) {
   });
 }
 if (elements.applyAiDrafts) elements.applyAiDrafts.addEventListener("click", applyAiDrafts);
-if (elements.saveAiDrafts) elements.saveAiDrafts.addEventListener("click", saveAiDrafts);
 if (elements.copyAiPrompt) elements.copyAiPrompt.addEventListener("click", copyAiPrompt);
 
 // ─── EXTERNAL AI IMPORT ───
@@ -2156,7 +2144,21 @@ function setSaveStatus(msg, isError = false) {
   }, 4000);
 }
 
-async function saveAllData() {
+function confirmPermanentSave() {
+  const profileLabel = getActiveProfile().label;
+  const languageLabel = state.language === "de" ? "German" : "English";
+  return window.confirm(
+    `Permanent save warning\n\nThis will override the saved/default resume data for:\n\nProfile: ${profileLabel}\nLanguage: ${languageLabel}\n\nYour current personal details, resume sections, cover letter, and application snapshot will be saved to the local SQLite database.\n\nContinue?`
+  );
+}
+
+async function saveAllData(event) {
+  if (!confirmPermanentSave()) {
+    setSaveStatus("Save cancelled. Nothing was overwritten.");
+    if (event?.currentTarget) event.currentTarget.blur();
+    return;
+  }
+
   try {
     const activeSections = getActiveSections();
     // Save personal details
