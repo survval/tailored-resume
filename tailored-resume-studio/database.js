@@ -25,6 +25,7 @@ db.exec(`
     website   TEXT NOT NULL DEFAULT '',
     visa_type TEXT NOT NULL DEFAULT '',
     nationality TEXT NOT NULL DEFAULT '',
+    availability TEXT NOT NULL DEFAULT '',
     photo_url TEXT NOT NULL DEFAULT '',
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
@@ -93,6 +94,9 @@ db.exec(`
   if (!cols.includes("nationality")) {
     db.exec("ALTER TABLE personal_details ADD COLUMN nationality TEXT NOT NULL DEFAULT ''");
   }
+  if (!cols.includes("availability")) {
+    db.exec("ALTER TABLE personal_details ADD COLUMN availability TEXT NOT NULL DEFAULT 'Sofort'");
+  }
 })();
 
 // ─── PERSONAL DETAILS ─────────────────────────────────────────────────────────
@@ -109,24 +113,24 @@ function savePersonal(data) {
       UPDATE personal_details SET
         name = ?, title = ?, phone = ?, email = ?, location = ?,
         linkedin = ?, github = ?, website = ?, visa_type = ?, nationality = ?,
-        photo_url = ?, include_photo = ?,
+        availability = ?, photo_url = ?, include_photo = ?,
         updated_at = datetime('now')
       WHERE id = 1
     `).run(
       data.name || "", data.title || "", data.phone || "",
       data.email || "", data.location || "", data.linkedin || "",
       data.github || "", data.website || "", data.visa_type || "",
-      data.nationality || "", data.photo_url || "", includePhoto
+      data.nationality || "", data.availability || "", data.photo_url || "", includePhoto
     );
   } else {
     db.prepare(`
-      INSERT INTO personal_details (id, name, title, phone, email, location, linkedin, github, website, visa_type, nationality, photo_url, include_photo)
-      VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO personal_details (id, name, title, phone, email, location, linkedin, github, website, visa_type, nationality, availability, photo_url, include_photo)
+      VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       data.name || "", data.title || "", data.phone || "",
       data.email || "", data.location || "", data.linkedin || "",
       data.github || "", data.website || "", data.visa_type || "",
-      data.nationality || "", data.photo_url || "", includePhoto
+      data.nationality || "", data.availability || "", data.photo_url || "", includePhoto
     );
   }
   return getPersonal();

@@ -10,6 +10,7 @@ const resumeData = {
     website: "portfolio.example.com",
     visa_type: "",
     nationality: "",
+    availability: "Sofort",
   },
   sections: {
     profile:
@@ -798,6 +799,9 @@ function sectionLabel(sectionKey) {
 }
 
 function personalLabel(fieldKey) {
+  if (fieldKey === "availability") {
+    return state.language === "de" ? "Verfügbar ab" : "Availability";
+  }
   if (fieldKey === "visa_type") {
     return state.language === "de" ? "Aufenthaltstitel / Arbeitserlaubnis" : "Visa / work authorization";
   }
@@ -841,6 +845,9 @@ function renderPersonalEditor() {
     "Work permit / Other",
   ];
   const nationalityOptions = ["Indian", "German", "European Union", "Other"];
+  const availabilityOptions = state.language === "de"
+    ? ["Sofort", "1 Monat", "2 Monate", "3 Monate", "Nach Vereinbarung"]
+    : ["Immediate", "1 month", "2 months", "3 months", "By agreement"];
   elements.personalEditor.innerHTML = `
     <article class="section-card">
       <header>
@@ -867,6 +874,13 @@ function renderPersonalEditor() {
               <option value="${escapeHtml(option)}" ${state.personal.visa_type === option ? "selected" : ""}>${option || (state.language === "de" ? "Nicht anzeigen" : "Do not show")}</option>
             `).join("")}
           </select>
+        </label>
+        <label>
+          ${personalLabel("availability")}
+          <input data-personal="availability" list="availabilityOptions" value="${escapeHtml(state.personal.availability || "")}" placeholder="${state.language === "de" ? "z. B. Sofort" : "e.g. Immediate"}" />
+          <datalist id="availabilityOptions">
+            ${availabilityOptions.map((option) => `<option value="${escapeHtml(option)}"></option>`).join("")}
+          </datalist>
         </label>
         <label>
           ${personalLabel("nationality")}
@@ -1453,6 +1467,7 @@ function buildAiTailoringPrompt() {
   const stableResumeContext = stableResumeContextText();
   const currentCoverLetter = getDraftCoverLetterText();
   const personalContext = [
+    state.personal.availability ? `Availability: ${state.personal.availability}` : "",
     state.personal.visa_type ? `Work authorization / visa: ${state.personal.visa_type}` : "",
     state.personal.nationality ? `Nationality: ${state.personal.nationality}` : "",
   ].filter(Boolean).join("\n");
@@ -1717,6 +1732,9 @@ function renderProjects(projectText) {
 // ─── HEADER RENDERER — 5 distinct template layouts ───
 function renderHeader(templateKey, personal, title, labels, includePhoto) {
   const photoHtml = `<div class="photo">${state.photoUrl ? `<img src="${state.photoUrl}" alt="Profile photo" />` : labels.photo}</div>`;
+  const availabilityValue = state.language === "en" && /^sofort$/i.test(personal.availability || "")
+    ? "Immediate"
+    : personal.availability;
   const contactItems = [
     ["Tel", personal.phone],
     ["Email", personal.email],
@@ -1724,6 +1742,7 @@ function renderHeader(templateKey, personal, title, labels, includePhoto) {
     ["LinkedIn", personal.linkedin],
     ["GitHub", personal.github],
     ["Web", personal.website],
+    [state.language === "de" ? "Verfügbar" : "Availability", availabilityValue],
     [state.language === "de" ? "Status" : "Work auth", personal.visa_type],
     [state.language === "de" ? "Nationalität" : "Nationality", personal.nationality],
   ];
@@ -1765,6 +1784,7 @@ function renderHeader(templateKey, personal, title, labels, includePhoto) {
       ["Email", personal.email],
       [state.language === "de" ? "Ort" : "Location", personal.location],
       ["LinkedIn", personal.linkedin],
+      [state.language === "de" ? "Verfügbar" : "Availability", availabilityValue],
       [state.language === "de" ? "Status" : "Work auth", personal.visa_type],
       [state.language === "de" ? "Nationalität" : "Nationality", personal.nationality],
     ]
@@ -2216,6 +2236,7 @@ async function loadSavedData() {
         website: personal.website || "",
         visa_type: personal.visa_type || "",
         nationality: personal.nationality || "",
+        availability: personal.availability || state.personal.availability || "",
       };
       if (personal.photo_url) state.photoUrl = personal.photo_url;
       if (personal.include_photo !== undefined) state.includePhoto = !!personal.include_photo;
@@ -2254,6 +2275,7 @@ if (elements.loadSavedData) elements.loadSavedData.addEventListener("click", loa
         website: personal.website || state.personal.website,
         visa_type: personal.visa_type || state.personal.visa_type,
         nationality: personal.nationality || state.personal.nationality,
+        availability: personal.availability || state.personal.availability,
       };
       if (personal.photo_url) state.photoUrl = personal.photo_url;
       if (personal.include_photo !== undefined) state.includePhoto = !!personal.include_photo;
